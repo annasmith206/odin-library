@@ -1,3 +1,17 @@
+
+:root {
+  --table-color: rgb(54, 162, 212);
+}
+
 td, th {
-    border: 1px solid black;
-  }
+    background-color: white;
+    box-shadow: 10px 5px 5px gray;
+    padding: 10px;
+    margin: 20px;
+}
+
+table {
+  background-color: var(--table-color);
+  border-radius: 5px;
+  padding: 10px;
+}
