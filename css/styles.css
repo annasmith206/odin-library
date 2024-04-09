@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap');
+
+body {
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  display: grid;
+  grid-template-columns: minmax(600px, 3fr) 1fr;
+  grid-template-rows: 1fr 5fr;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(235, 235, 235);
+}
+
+header {
+  background: rgb(167 7 72);
+  color: white;
+  font-family: "Quicksand", "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 3rem;
+  font-weight: 500;
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 70px auto;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 1px 1px 3px 1px lightgray;
+}
+
+header > img {
+  width: 70px;
+  height: auto;
+}
+
+main {
+  grid-column: span 1;
+  grid-row: span 1;
+  overflow: scroll;
+
+}
+
+table {
+  background-color: white;
+  padding: 0 20px;
+  border-collapse: separate;
+  border-spacing: 0px 20px;
+  width: calc(100% - 15px);
+  border-radius: 1%;
+  margin: 0 15px;
+}
+
+form {
+  padding: 20px;
+  background-color: white;
+  margin: 0 15px 15px 15px;
+  border-radius: 1%;
+}
+
+.inputContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  gap: 15px;
+  align-items: stretch;
+}
+
+.textField{
+  grid-column: span 2;
+}
+
+.input {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.hasBeenRead > button {
+  background-color: rgb(0 203 78);
+  color: white;
+}
+
+form button {
+  border: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  background-color: rgb(70 180 245);
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+  font-family: "Quicksand", "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+input {
+  margin-top: 10px;
+  padding: 5px 8px;
+}
+
+footer {
+  grid-column: span 2;
+  padding: 15px;
+  background-color: rgb(209 232 254);
+}
+
+td, th {
+    background-color: white;
+    margin: 20px;
+}
+
+td {
+  padding: 20px 10px;
+}
+
+th {
+  font-size: 1.8rem;
+  text-align: left;
+  padding-left: 10px;
+  font-family: "Quicksand", "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+tr:not(:first-child) {
+  box-shadow: 1px 1px 3px 1px lightgray;
+}
+
+td > button{
+  border: none;
+}
+
+td:first-child() {
+  text-wrap: wrap;
+}
+
+td:nth-child(4) > button{
+  font-family: "Quicksand", "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 120px;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+td:nth-child(5) > button{
+  padding: 1px 8px;
+  margin-right: 8px;
+  font-family: "Quicksand", "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  font-size: 1.4rem;
+  border-radius: 5px;
+  background-color: rgb(247 12 60);
+  color: white;
+}

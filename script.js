@@ -16,7 +16,6 @@ initializeView();
 
 
 /** Event Handling */
-
 const addBookForm = document.querySelector("form");
 addBookForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -30,6 +29,7 @@ addBookForm.addEventListener("submit", (event) => {
 });
 
 function onToggleRead(event) {
+    event.target.classList.toggle('hasBeenRead');
     const targetRow = event.target.parentElement.parentElement;
     const ID = Number(targetRow.dataset.ID);
     library.toggleRead(ID);
@@ -124,15 +124,18 @@ function DataTable() {
 
         let i = 0;
         for (cellData of rowData) {
-            this.populateCell(row, cellData, "td", this.columnDefs[i]);
+            this.populateCell(row, cellData.text, "td", cellData.style, this.columnDefs[i]);
             i++;
         }
 
         return row;
     }
 
-    this.populateCell = function(row, text, cellType, columnDef) {
+    this.populateCell = function(row, text, cellType, style, columnDef) {
         let cell = document.createElement(cellType);
+        if (style) {
+            cell.classList.add(style);
+        }
 
         if(columnDef && columnDef.type !== ""){
             let innerCell = document.createElement(columnDef.type);
@@ -158,7 +161,7 @@ function DataColumn(header, type, callBacks) {
 }
 
 function InputFields() {
-    this.inputFields = document.querySelectorAll("form > input");
+    this.inputFields = document.querySelectorAll("form input");
 
     this.getData = function() {
         let data = [];
@@ -190,5 +193,14 @@ function initializeView(){
 }
 
 function makeRowParams(book) {
-    return [book.title, book.author, book.pages, book.read ? "Read" : "Not Read", "Delete"];
+    return [
+        {text: book.title}, 
+        {text: book.author}, 
+        {text: book.pages}, 
+        {
+            text: (book.read ? "Read" : "Not Read"), 
+            style: (book.read ? "hasBeenRead": null)
+        }, 
+        {text: "X"}
+    ];
 }
