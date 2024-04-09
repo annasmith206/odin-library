@@ -6,7 +6,7 @@ const dataTable = new DataTable();
 dataTable.addColumnDef("Title");
 dataTable.addColumnDef("Author");
 dataTable.addColumnDef("Pages");
-dataTable.addColumnDef("Status");
+dataTable.addColumnDef("Status", "button",[{eventType: "click", func: onToggleRead}]);
 dataTable.addColumnDef("", "button", [{eventType: "click", func: onDeleteRow}]);
 
 const inputFields = new InputFields();
@@ -23,17 +23,24 @@ addBookForm.addEventListener("submit", (event) => {
 
     const newBookData = inputFields.getData();
     newBook = new Book(...newBookData);
-    library.addBook(newBook);
-    dataTable.addRow(makeRowParams(newBook));
+    const ID = library.addBook(newBook);
+    dataTable.addRow(makeRowParams(newBook), ID);
 
     inputFields.clear();
 });
 
+function onToggleRead(event) {
+    const targetRow = event.target.parentElement.parentElement;
+    const ID = Number(targetRow.dataset.ID);
+    library.toggleRead(ID);
+    dataTable.updateRow(makeRowParams(library.getBook(ID)), ID);
+} 
+
 function onDeleteRow(event) {
     const targetRow = event.target.parentElement.parentElement;
-    const index = targetRow.dataset.index;
-    library.deleteBook(index);
-    dataTable.deleteRow(index);
+    const ID = Number(targetRow.dataset.ID);
+    library.deleteBook(ID);
+    dataTable.deleteRow(ID);
 }
 
 /** Data Classes */
@@ -50,14 +57,24 @@ function Book(title, author, pages, read){
 }
 
 function Library(){
-    this.books = [];
+    this.books = new Map();
+    this.nextID = 0;
+
+    this.getBook = function(i) {
+        return this.books.get(i);
+    }
 
     this.addBook = function(book) {
-        this.books.push(book);
+        this.books.set(this.nextID, book);
+        return this.nextID++;
     }
 
     this.deleteBook = function(i) {
-        this.books.splice(i, 1);
+        this.books.delete(i);
+    }
+
+    this.toggleRead = function(i) {
+        this.books.get(i).read = !this.books.get(i).read;
     }
 
     this.populate = function(count) {
@@ -74,7 +91,7 @@ function DataTable() {
     this.table = document.querySelector("table");
     this.columnDefs = [];
     this.headerElement = document.createElement("tr");
-    this.rowElements = [];
+    this.rowElements = new Map();
     this.table.appendChild(this.headerElement);
 
     this.addColumnDef = function(header, type, callBacks){
@@ -84,8 +101,26 @@ function DataTable() {
         this.columnDefs.push(column);
     }
 
-    this.addRow = function(rowData) {
+    this.addRow = function(rowData, ID) {
+        let row = this.createRow(rowData, ID);
+        this.table.appendChild(row);
+        this.rowElements.set(ID, row);
+    }
+
+    this.updateRow = function(rowData, ID) {
+        let updatedRow = this.createRow(rowData, ID);
+        this.rowElements.get(ID).replaceWith(updatedRow);
+        this.rowElements.set(ID, updatedRow);
+    }
+
+    this.deleteRow = function(ID) {
+        this.rowElements.get(ID).remove();
+        this.rowElements.delete(ID);
+    }
+
+    this.createRow = function(rowData, ID){
         let row = document.createElement("tr");
+        row.dataset.ID = ID;
 
         let i = 0;
         for (cellData of rowData) {
@@ -93,14 +128,7 @@ function DataTable() {
             i++;
         }
 
-        row.dataset.index = this.rowElements.length;
-
-        this.table.appendChild(row);
-        this.rowElements.push(row);
-    }
-
-    this.deleteRow = function(i) {
-        this.rowElements[i].remove();
+        return row;
     }
 
     this.populateCell = function(row, text, cellType, columnDef) {
@@ -156,8 +184,8 @@ function InputFields() {
 
 function initializeView(){
     library.populate(10);
-    for (let book of library.books) {
-        dataTable.addRow(makeRowParams(book));
+    for (let [ID, book] of library.books) {
+        dataTable.addRow(makeRowParams(book), ID);
     }
 }
 
