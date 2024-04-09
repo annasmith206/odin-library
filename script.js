@@ -9,7 +9,7 @@ const inputFields = new InputFields();
 initializeView();
 
 
-/** Event Handlers */
+/** Event Handling */
 
 const addBookForm = document.querySelector("form");
 addBookForm.addEventListener("submit", (event) => {
@@ -17,10 +17,17 @@ addBookForm.addEventListener("submit", (event) => {
 
     const newBookData = inputFields.getData();
     library.addBook(new Book(...newBookData));
-    dataTable.addRow(newBookData);
+    dataTable.addRow(newBookData, onDeleteRow);
 
     inputFields.clear();
 });
+
+function onDeleteRow(event) {
+    const targetRow = event.target.parentElement;
+    const index = targetRow.dataset.index;
+    library.deleteBook(index);
+    dataTable.deleteRow(index);
+}
 
 
 /** Data Classes */
@@ -66,14 +73,21 @@ function DataTable() {
         for (cellData of headerData) {
             this.populateCell(row, cellData, "th");
         }
+        this.populateCell(row, "", "th");
         this.table.appendChild(row);
     }
 
-    this.addRow = function(rowData) {
+    this.addRow = function(rowData, onDeleteCallBack) {
         let row = document.createElement("tr");
+
         for (cellData of rowData) {
             this.populateCell(row, cellData, "td");
         }
+
+        this.populateCell(row, "Delete", "button", "click", onDeleteCallBack);
+
+        row.dataset.index = this.domElements.length;
+
         this.table.appendChild(row);
         this.domElements.push(row);
     }
@@ -82,9 +96,19 @@ function DataTable() {
         this.domElements[i].remove();
     }
 
-    this.populateCell = function(row, text, type) {
+    this.populateCell = function(row, text, type, event, callback) {
         let cell = document.createElement(type);
         cell.textContent = text;
+        if(event && callback) {
+            cell.addEventListener(event, callback);
+        }
+        row.appendChild(cell);
+    }
+
+    this.populateCallbackCell = function(row, text, type, event, callback) {
+        let cell = document.createElement(type);
+        cell.textContent = text;
+        cell.addEventListener(event, callback);
         row.appendChild(cell);
     }
 }
@@ -118,7 +142,7 @@ function initializeView(){
     dataTable.addHeader(["Title", "Author", "Pages", "Read?"]);
     library.populate(10);
     for (let book of library.books) {
-        dataTable.addRow([book.title, book.author, book.pages, book.read]);
+        dataTable.addRow([book.title, book.author, book.pages, book.read], onDeleteRow);
     }
 }
 
