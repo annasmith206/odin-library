@@ -3,6 +3,12 @@ const library = new Library();
 
 // initialize dom references
 const dataTable = new DataTable();
+dataTable.addColumnDef("Title");
+dataTable.addColumnDef("Author");
+dataTable.addColumnDef("Pages");
+dataTable.addColumnDef("Status");
+dataTable.addColumnDef("", "button", [{eventType: "click", func: onDeleteRow}]);
+
 const inputFields = new InputFields();
 
 // add initial data
@@ -16,19 +22,19 @@ addBookForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const newBookData = inputFields.getData();
-    library.addBook(new Book(...newBookData));
-    dataTable.addRow(newBookData, onDeleteRow);
+    newBook = new Book(...newBookData);
+    library.addBook(newBook);
+    dataTable.addRow(makeRowParams(newBook));
 
     inputFields.clear();
 });
 
 function onDeleteRow(event) {
-    const targetRow = event.target.parentElement;
+    const targetRow = event.target.parentElement.parentElement;
     const index = targetRow.dataset.index;
     library.deleteBook(index);
     dataTable.deleteRow(index);
 }
-
 
 /** Data Classes */
 
@@ -65,52 +71,62 @@ function Library(){
 /** Element Classes */
 
 function DataTable() {
-    this.domElements = [];
-    this.table = document.querySelector("table ");
+    this.table = document.querySelector("table");
+    this.columnDefs = [];
+    this.headerElement = document.createElement("tr");
+    this.rowElements = [];
+    this.table.appendChild(this.headerElement);
 
-    this.addHeader = function(headerData) {
-        let row = document.createElement("tr");
-        for (cellData of headerData) {
-            this.populateCell(row, cellData, "th");
-        }
-        this.populateCell(row, "", "th");
-        this.table.appendChild(row);
+    this.addColumnDef = function(header, type, callBacks){
+        this.populateCell(this.headerElement, header, "th");
+
+        const column = new DataColumn(header ?? "", type ?? "", callBacks ?? []);
+        this.columnDefs.push(column);
     }
 
-    this.addRow = function(rowData, onDeleteCallBack) {
+    this.addRow = function(rowData) {
         let row = document.createElement("tr");
 
+        let i = 0;
         for (cellData of rowData) {
-            this.populateCell(row, cellData, "td");
+            this.populateCell(row, cellData, "td", this.columnDefs[i]);
+            i++;
         }
 
-        this.populateCell(row, "Delete", "button", "click", onDeleteCallBack);
-
-        row.dataset.index = this.domElements.length;
+        row.dataset.index = this.rowElements.length;
 
         this.table.appendChild(row);
-        this.domElements.push(row);
+        this.rowElements.push(row);
     }
 
     this.deleteRow = function(i) {
-        this.domElements[i].remove();
+        this.rowElements[i].remove();
     }
 
-    this.populateCell = function(row, text, type, event, callback) {
-        let cell = document.createElement(type);
-        cell.textContent = text;
-        if(event && callback) {
-            cell.addEventListener(event, callback);
+    this.populateCell = function(row, text, cellType, columnDef) {
+        let cell = document.createElement(cellType);
+
+        if(columnDef && columnDef.type !== ""){
+            let innerCell = document.createElement(columnDef.type);
+            
+            for (callBack of columnDef.callBacks) {
+                innerCell.addEventListener(callBack.eventType, callBack.func);
+            }
+
+            innerCell.textContent = text;
+            cell.appendChild(innerCell);
+        } else {
+            cell.textContent = text;
         }
-        row.appendChild(cell);
-    }
 
-    this.populateCallbackCell = function(row, text, type, event, callback) {
-        let cell = document.createElement(type);
-        cell.textContent = text;
-        cell.addEventListener(event, callback);
         row.appendChild(cell);
     }
+}
+
+function DataColumn(header, type, callBacks) {
+    this.header = header;
+    this.type = type;
+    this.callBacks = callBacks;
 }
 
 function InputFields() {
@@ -139,10 +155,12 @@ function InputFields() {
 /** Helper Functions */
 
 function initializeView(){
-    dataTable.addHeader(["Title", "Author", "Pages", "Read?"]);
     library.populate(10);
     for (let book of library.books) {
-        dataTable.addRow([book.title, book.author, book.pages, book.read], onDeleteRow);
+        dataTable.addRow(makeRowParams(book));
     }
 }
 
+function makeRowParams(book) {
+    return [book.title, book.author, book.pages, book.read ? "Read" : "Not Read", "Delete"];
+}
