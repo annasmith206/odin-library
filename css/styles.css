@@ -97,7 +97,8 @@ input {
 footer {
   grid-column: span 2;
   padding: 15px;
-  background-color: rgb(209 232 254);
+  background-color: rgb(73, 91, 226);
+  color: white;
 }
 
 td, th {
